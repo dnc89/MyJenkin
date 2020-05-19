@@ -14,19 +14,21 @@ class GetBuild():
             stderr=subprocess.STDOUT)
 
         stdout, stderr = out.communicate()
+        stdout = stdout.decode("utf-8")
         stdout = stdout.split("\n")
         print("Build Details : ",stdout)
-        build = {}
+        build_dict = {}
         for var in stdout:
             if var.startswith("ob-"):
                 build = re.findall(r"\d+ ", var)
                 # product = re.findall(r"nsx-\w+",var)
                 print(build[0])
                 print(product)
-                build['build_number'] = build[0]
-                print("Latest Stable Build Found is : ", build[0])
+                build_dict['build_number'] = build[0]
+                print("Latest Stable Build Found is : ", build_dict['build_number'])
         with open('/home/code/build.pickle', 'wb') as f:
-            pickle.dump(build, f)
+            pickle.dump(build_dict, f)
+            f.close()
 
 
 if __name__ == "__main__":
