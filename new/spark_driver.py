@@ -22,21 +22,32 @@ class Driver:
         date = str(date)
         date = date.replace(" ", "_")
         destination = "/var/www/repo/spark_logs/"+date
-        try:
-            create_dir = subprocess.Popen(["sshpass", "-p", "ca$hc0w", "ssh", "root@10.205.71.79",
-                                           "mkdir", "777", destination])
-            sts = os.waitpid(create_dir.pid, 0)
-            print("Try executed")
-        except Exception as e:
-            print("on exception")
-            print(e)
+        import paramiko
+        print("paramiko starts")
 
-        p = subprocess.Popen(["sshpass", "-p", "ca$hc0w", "scp", "-r", log_dir, "root@10.205.71.79:/var/www/repo"])
+        ip = '10.205.71.79'
+        port = 22
+        username = 'root'
+        password = 'ca$hc0w'
+
+        cmd = 'mkdir 777 ' + destination
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(ip, port, username, password)
+        import time
+        stdin, stdout, stderr = ssh.exec_command(cmd)
+        time.sleep(5)
+        outlines = stdout.readlines()
+        resp = ''.join(outlines)
+        print(resp)
+
+        p = subprocess.Popen(["sshpass", "-p", "ca$hc0w", "scp", "-r", log_dir, "root@10.205.71.79:"+destination])
         sts = os.waitpid(p.pid, 0)
         #match1 = re.match(".*/(p.*)", log_dir)
         #print("\n\n\nTestcase Log Link: http://10.205.71.79/" + match1.group(1) + "\n\n\n\n")
         print("\n\n\nTestcase Log Link: http://10.205.71.79/"+"spark_logs/"+date + "\n\n\n\n")
         #return "http://10.110.233.219/SB/" + match1.group(1)
+
 
     def executor(self, build_number, branch, physical_config, logical_config, tests):
         os.chdir("/home/choudhuryd/")
@@ -89,3 +100,4 @@ if __name__ == "__main__":
     test_dir = obj.executor(args["build_number"], args["branch"], args["physical_config"],
                             args["logical_config"], tests)
     print(test_dir)
+
