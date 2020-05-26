@@ -41,14 +41,20 @@ class CmnDriver:
         print("\n\n\nTestcase Log Link: http://10.110.235.235:/" + match1.group(1) + "\n\n\n\n")
         return "http://10.110.235.235:/var/www/repo/" + match1.group(1)
 
-    def executor(self, config, testcase, mode):
+    def executor(self, config, testcase, mode=None):
         os.chdir("/home/code/")
         os.chdir("/home/code/nsx-qe/vdnet/automation")
         config = config
         testcase = testcase
-        mode = mode
+        execution_list = ['vdnet3/test.py', '--config', config, testcase]
+        if mode == "save":
+            execution_list.append("--testbed")
+            execution_list.append("save")
+        if mode == "reuse":
+            execution_list.append("--testbed")
+            execution_list.append("reuse")
 
-        process = subprocess.Popen(['vdnet3/test.py', '--config', config, testcase, "--testbed", mode],
+        process = subprocess.Popen(execution_list,
                                    stdout=subprocess.PIPE)
         test_dir = None
         while True:
@@ -68,15 +74,6 @@ class CmnDriver:
         return rc
 
 
-#        #subprocess.call(["git","pull","--rebase"])
-#        result = subprocess.run(['vdnet3/test.py', '--config', 'L2vpn_Edge.yaml', 'TDS/NSXTransformers/Edge/L2VPN/L2vpn_AutoEdge/L2vpn_AutoEdgeTds.yaml::L2vpn_Setup', '--use-product-sdks', '--testbed', 'save'], stdout=subprocess.PIPE)
-#        print (result.stdout.decode('utf-8'))
-#
-#    p = subprocess.Popen(['vdnet3/test.py', '--config', 'L2vpn_Edge.yaml', 'TDS/NSXTransformers/Edge/L2VPN/L2vpn_AutoEdge/L2vpn_AutoEdgeTds.yaml::L2vpn_Setup', '--use-product-sdks', '--testbed', 'save'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-#    for line in p.stdout.readlines():
-#        print (line.decode('utf-8'))
-
-
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("-c", "--config", required=True, help="path to input image")
@@ -86,19 +83,20 @@ if __name__ == "__main__":
     args = vars(ap.parse_args())
     print(args)
     obj = CmnDriver()
-    mode = args['mode'].split(",")
+    if args['mode']:
+         mode = args['mode'].split(",")
 
     with open('/home/code/build.pickle') as f:
         build = pickle.load(f)
         build = build[0]
-    rc = obj.update_build(args['config'], args['build'])
+    config_file = obj.update_build(args['config'], args['build'])
     #for mode in mode:
-     #   test_dir = obj.executor(rc, args['testcase'], mode)
+    test_dir = obj.executor(config_file, args['testcase'])
 
-    #result_dict = utils.Utils.result_details(test_dir)
+    result_dict = utils.Utils.result_details(test_dir)
     print(build)
 
     # Copy Logs to Web Server
-    #log_link = obj.scp_logs(test_dir)
+    log_link = obj.scp_logs(test_dir)
 
 
