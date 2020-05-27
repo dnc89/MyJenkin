@@ -15,7 +15,7 @@ class Driver:
 
 
     def update_build(self,file_path,build):
-        shutil.copy2("/home/code/nsx-qe/vdnet/automation/"+file_path, "/tmp/"+file_path)
+        shutil.copy2("/home/choudhuryd/source/nsx-qe/vdnet/automation/"+file_path, "/tmp/"+file_path)
         f = open("/tmp/"+file_path,'r')
         filedata = f.read()
         f.close()
@@ -29,23 +29,22 @@ class Driver:
         return config_file
 
     def scp_logs(self,log_dir):
-        os.chdir("/home/code/")
-        os.chdir("/home/code/nsx-qe/vdnet/automation")
-       # client = scp.Client(host="10.110.233.219", user="root", password="ca$hc0w")
+        os.chdir("/home/choudhuryd/")
+        os.chdir("/home/choudhuryd/source/nsx-qe/vdnet/automation")
+       # client = scp.Client(host="10.205.71.79", user="root", password="ca$hc0w")
        # client.transfer(logdir, '/var/www/SB/')
         import subprocess
         #sshpass -p "password"
-        p = subprocess.Popen(["sshpass", "-p", "ca$hc0w", "scp", "-r", log_dir, "root@10.110.233.219:/var/www/SB/"])
+        p = subprocess.Popen(["sshpass", "-p", "ca$hc0w", "scp", "-r", log_dir, "root@10.205.71.79:/var/www/repo/"])
         sts = os.waitpid(p.pid, 0)
         match1 = re.match(".*/(p.*)",log_dir)
-        print ("\n\n\nTestcase Log Link: http://10.110.233.219/SB/"+match1.group(1)+"\n\n\n\n")
-        return "http://10.110.233.219/SB/"+match1.group(1)
+        print ("\n\n\nTestcase Log Link: http://10.205.71.79/"+match1.group(1)+"\n\n\n\n")
+        return "http://10.205.71.79/"+match1.group(1)
 
 
 
     def executor(self,config,testcase):
-        os.chdir("/home/code/")
-        os.chdir("/home/code/nsx-qe/vdnet/automation")
+        os.chdir("/home/choudhuryd/source/nsx-qe/vdnet/automation")
         config = config
         testcase = testcase
 
