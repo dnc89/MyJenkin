@@ -15,7 +15,7 @@ import os
 class CmnDriver:
 
     def update_build(self, file_path, build):
-        shutil.copy2("/home/code/nsx-qe/vdnet/automation/" + file_path, "/tmp/" + file_path)
+        shutil.copy2("/home/choudhuryd/source/nsx-qe/vdnet/automation/" + file_path, "/tmp/" + file_path)
         f = open("/tmp/" + file_path, 'r')
         filedata = f.read()
         f.close()
@@ -29,21 +29,19 @@ class CmnDriver:
         return config_file
 
     def scp_logs(self, log_dir):
-        os.chdir("/home/code/")
-        os.chdir("/home/code/nsx-qe/vdnet/automation")
+        os.chdir("/home/choudhuryd/source/nsx-qe/vdnet/automation")
         # client = scp.Client(host="10.110.233.219", user="root", password="ca$hc0w")
         # client.transfer(logdir, '/var/www/SB/')
         import subprocess
         # sshpass -p "password"
-        p = subprocess.Popen(["sshpass", "-p", "ca$hc0w", "scp", "-r", log_dir, "root@10.110.235.235:/var/www/repo/"])
+        p = subprocess.Popen(["sshpass", "-p", "ca$hc0w", "scp", "-r", log_dir, "root@10.205.71.79:/var/www/repo/"])
         sts = os.waitpid(p.pid, 0)
         match1 = re.match(".*/(p.*)", log_dir)
-        print("\n\n\nTestcase Log Link: http://10.110.235.235:/" + match1.group(1) + "\n\n\n\n")
-        return "http://10.110.235.235:/var/www/repo/" + match1.group(1)
+        print("\n\n\nTestcase Log Link: http://10.205.71.79:/" + match1.group(1) + "\n\n\n\n")
+        return "http://10.205.71.79:/var/www/repo/" + match1.group(1)
 
     def executor(self, config, testcase, mode=None):
-        os.chdir("/home/code/")
-        os.chdir("/home/code/nsx-qe/vdnet/automation")
+        os.chdir("/home/choudhuryd/source/nsx-qe/vdnet/automation")
         config = config
         testcase = testcase
         execution_list = ['vdnet3/test.py', '--config', config, testcase]
@@ -86,10 +84,13 @@ if __name__ == "__main__":
     if args['mode']:
          mode = args['mode'].split(",")
 
-    with open('/home/code/build.pickle') as f:
-        build = pickle.load(f)
-        build = build[0]
-    config_file = obj.update_build(args['config'], args['build'])
+
+    pickle_off = open("/home/choudhuryd/build.pickle","rb")
+    build = pickle.load(pickle_off)
+    print(build)
+    pickle_off.close()
+
+    config_file = obj.update_build(args['config'], build["build_number"].rstrip())
     #for mode in mode:
     test_dir = obj.executor(config_file, args['testcase'])
 
@@ -98,5 +99,9 @@ if __name__ == "__main__":
 
     # Copy Logs to Web Server
     log_link = obj.scp_logs(test_dir)
+
+    # Push Data to DB
+    build = build["build_number"].rstrip()
+    db.Database.insert_db(result_dict,build,log_link)
 
 

@@ -26,7 +26,7 @@ class GetBuild():
                 print(product)
                 build_dict['build_number'] = build[0]
                 print("Latest Stable Build Found is : ", build_dict['build_number'])
-        with open('/home/code/build.pickle', 'wb') as f:
+        with open('/home/choudhuryd/build.pickle', 'wb') as f:
             pickle.dump(build_dict, f)
             f.close()
 
