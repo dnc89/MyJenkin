@@ -9,7 +9,7 @@ class Utils():
         collected_lines = []
         with open(log_path, "r") as fp:
             for i, line in enumerate(fp.readlines()):
-                if "summary of the test run is" in line or started == True:
+                if "Test summary:" in line or started == True:
                     started = True
                     # print ( "started at line", i )# counts from zero !
                     collected_lines.append(line.rstrip())

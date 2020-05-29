@@ -38,7 +38,7 @@ class CmnDriver:
         sts = os.waitpid(p.pid, 0)
         match1 = re.match(".*/(p.*)", log_dir)
         print("\n\n\nTestcase Log Link: http://10.205.71.79:/" + match1.group(1) + "\n\n\n\n")
-        return "http://10.205.71.79:/var/www/repo/" + match1.group(1)
+        return "http://10.205.71.79:/" + match1.group(1)
 
     def executor(self, config, testcase, mode=None):
         os.chdir("/home/choudhuryd/source/nsx-qe/vdnet/automation")
@@ -103,5 +103,3 @@ if __name__ == "__main__":
     # Push Data to DB
     build = build["build_number"].rstrip()
     db.Database.insert_db(result_dict,build,log_link)
-
-
